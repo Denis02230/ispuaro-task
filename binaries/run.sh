@@ -31,7 +31,7 @@ echo "generating a base SBOM with syft"
 syft gcc_binaries/ -o cyclonedx-json > .no_cves-gcc-bin-sbom.cdx.json
 
 echo "running add_vulns.py to find and add vulnerabilities to SBOM"
-python3 add_vulns.py .no_cves-gcc-bin-sbom.cdx.json gcc-bin-sbom.cdx.json
+python3 -m mysbomtools_bin.add_vulns .no_cves-gcc-bin-sbom.cdx.json gcc-bin-sbom.cdx.json
 
 echo "cleaning up temporary files"
 rm .no_cves-gcc-bin-sbom.cdx.json

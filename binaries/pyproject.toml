@@ -1,0 +1,7 @@
+[project]
+name = "mysbomtools_bin"
+version = "1.0.0"
+description = "Scripts for working with SBOMs for binaries"
+authors = [{ name = "Titov Denis" }]
+requires-python = ">=3.8"
+dependencies = [ "requests" ]

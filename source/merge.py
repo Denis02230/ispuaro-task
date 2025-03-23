@@ -5,11 +5,15 @@ def main():
     parser.add_argument("no_cve_sbom_path")
     parser.add_argument("cve_path")
     parser.add_argument("full_sbom_path")
+    parser.add_argument("cve_bin_tool_version")
+    parser.add_argument("gcc_version")
     args = parser.parse_args()
 
     no_cve_sbom_path = args.no_cve_sbom_path
     cve_path = args.cve_path
     full_sbom_path = args.full_sbom_path
+    cve_bin_tool_version = args.cve_bin_tool_version
+    gcc_version = args.gcc_version
 
     with open(no_cve_sbom_path, "r") as f:
         sbom = json.load(f)
@@ -60,7 +64,7 @@ def main():
             "type": "application",
             "author": "intel",
             "name": "cve-bin-tool",
-            "version": "3.4",
+            "version": cve_bin_tool_version,
         },
         {
             "type": "application",
@@ -70,6 +74,8 @@ def main():
 
     for tool in tools_to_add:
         sbom["metadata"]["tools"]["components"].append(tool)
+    
+    sbom["metadata"]["component"]["version"] = gcc_version
 
     with open(full_sbom_path, "w") as f:
         json.dump(sbom, f, indent=2)

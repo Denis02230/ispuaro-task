@@ -1,0 +1,5 @@
+[project]
+name = "mysbomtools"
+version = "1.0.0"
+description = "Scripts for working with SBOMs"
+authors = [{ name = "Titov Denis" }]

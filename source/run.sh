@@ -3,6 +3,8 @@ tar -xf gcc.tar.gz -C gcc
 
 syft gcc -o cyclonedx-json > .no_cves-gcc-sbom.cdx.json
 
+python3 add_components.py -i .no_cves-gcc-sbom.cdx.json -s gcc/
+
 cve-bin-tool -f json -o .cves.json gcc
 
 CVEBINTOOL_VERSION=$(cve-bin-tool --version | head -n 1 | awk '{print $1}')

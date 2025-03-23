@@ -68,6 +68,10 @@ def main():
         },
         {
             "type": "application",
+            "name": "add_components.py",
+        },
+        {
+            "type": "application",
             "name": "merge.py",
         }
     ]

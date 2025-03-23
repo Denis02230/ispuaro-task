@@ -1,12 +1,14 @@
 import argparse, json, requests, time
+from packaging import version
 
 def is_version_affected(version_end: str, actual_version: str) -> bool:
     try:
-        return float(version_end) >= float(actual_version)
-    except ValueError:
+        return version.parse(version_end) >= version.parse(actual_version)
+    except Exception as e:
+        print(f"## failed to parse version {version_end} or {actual_version}")
         return False
 
-def fetch_cves_for_package(pkg_name, pkg_version, max_pages=200, res_per_page=20):
+def fetch_cves_for_package(pkg_name, pkg_version, max_pages=5, res_per_page=20):
     cves = []
     print(f"# trying to fetch CVEs for {pkg_name} {pkg_version}")
 
@@ -59,7 +61,7 @@ def fetch_cves_for_package(pkg_name, pkg_version, max_pages=200, res_per_page=20
         if cves:
             break
 
-        time.sleep(15)
+        time.sleep(10)
 
     if cves:
         print(f"# found {len(cves)} CVEs for {pkg_name} {pkg_version}")
@@ -78,11 +80,10 @@ def main():
     no_cve_sbom_path = args.no_cve_sbom_path
     full_sbom_path = args.full_sbom_path
     targets_raw = args.targets
-
+    
     targets = []
     for pair in targets_raw:
         if ':' not in pair:
-            print(f"Invalid target format: {pair}")
             continue
         name, version = pair.split(":", 1)
         targets.append({"name": name, "version": version})

@@ -28,10 +28,10 @@ mkdir -p gcc_binaries
 tar -xf gcc_binaries.tar.gz -C gcc_binaries
 
 echo "generating a base SBOM with syft"
-syft gcc_binaries/ -o cyclonedx-json > .no_cves-gcc-bin-sbom.cdx.json
+syft gcc_binaries/ -o cyclonedx-json > gcc-bin-sbom.cdx.json
+
+LIBS=$(python3 -m mysbomtools_bin.find_libs gcc_binaries/)
+echo "found libs: $LIBS"
 
 echo "running add_vulns.py to find and add vulnerabilities to SBOM"
-python3 -m mysbomtools_bin.add_vulns .no_cves-gcc-bin-sbom.cdx.json gcc-bin-sbom.cdx.json
-
-echo "cleaning up temporary files"
-rm .no_cves-gcc-bin-sbom.cdx.json
+python3 -m mysbomtools_bin.add_vulns gcc-bin-sbom.cdx.json gcc-bin-sbom.cdx.json --targets $LIBS

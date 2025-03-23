@@ -115,6 +115,16 @@ def main():
         }
         sbom["vulnerabilities"].append(vuln)
 
+    
+    tools_to_add = [
+        {
+            "type": "application",
+            "name": "add_vulns.py",
+        }
+    ]
+    for tool in tools_to_add:
+        sbom["metadata"]["tools"]["components"].append(tool)
+
     with open(full_sbom_path, "w") as f:
         json.dump(sbom, f, indent=2)
 

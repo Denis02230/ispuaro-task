@@ -55,6 +55,22 @@ def main():
             }],
         })
 
+    tools_to_add = [
+        {
+            "type": "application",
+            "author": "intel",
+            "name": "cve-bin-tool",
+            "version": "3.4",
+        },
+        {
+            "type": "application",
+            "name": "merge.py",
+        }
+    ]
+
+    for tool in tools_to_add:
+        sbom["metadata"]["tools"]["components"].append(tool)
+
     with open(full_sbom_path, "w") as f:
         json.dump(sbom, f, indent=2)
 

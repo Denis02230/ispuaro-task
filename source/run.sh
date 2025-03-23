@@ -1,11 +1,15 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "checking for required files"
 REQUIRED_FILES=("gcc.tar.gz" "add_components.py" "merge.py")
-
 for f in $REQUIRED_FILES; do
     if [ ! -f $f ]; then
         echo "required file $f not found in current working directory"
+        if [ -f $SCRIPT_DIR/$f ]; then
+            echo "however, it exists in $SCRIPT_DIR. you should run the script from there."
+        fi
         exit 1
     fi
 done

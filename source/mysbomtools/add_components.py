@@ -1,13 +1,23 @@
 import argparse, json, re
 from pathlib import Path
 
+NON_LIBRARY_COMPONENTS = {
+    "fastjar": "application",
+    "gnattools": "application",
+    "treelang": "application",
+    "fixincludes": "application",
+    "gcj": "compiler",
+}
+
 def extract_components(root: Path):
     components = []
+    seen = set()
+
     for sub in root.iterdir():
         if sub.is_dir() and sub.name.startswith("lib"):
             name = sub.name
             version = None
-            print(f"# found component {sub}")
+            print(f"# found library component {sub}")
 
             fpath = sub / "configure.ac"
             if fpath.exists():
@@ -24,7 +34,21 @@ def extract_components(root: Path):
                 "name": name,
                 "version": version,
             })
-    
+            seen.add(name)
+
+    for sub in root.rglob("*"):
+        if sub.is_dir() and sub.name in NON_LIBRARY_COMPONENTS and sub.name not in seen:
+            name = sub.name
+            version = "unknown"
+            print(f"# found non-library component {sub}")
+            components.append({
+                "bom-ref": f"{name}@{version}",
+                "type": NON_LIBRARY_COMPONENTS[name],
+                "name": name,
+                "version": version,
+            })
+            seen.add(name)
+
     return components
 
 def main():

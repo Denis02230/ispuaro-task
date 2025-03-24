@@ -1,0 +1,5 @@
+source/gcc/
+*.json
+*.tar.gz
+binaries/gcc_binaries/
+*__pycache__/

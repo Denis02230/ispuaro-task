@@ -75,7 +75,7 @@ def extract_tarball(tar_path, dest_dir):
 
 def get_versions():
     cve_bin_tool_version = subprocess.check_output(["cve-bin-tool", "--version"]).decode().split()[0]
-    gcc_version = subprocess.check_output(["gcc", "--version"]).decode().splitlines()[0]
+    gcc_version = subprocess.check_output(["cat", "gcc/gcc/BASE-VER"]).decode().strip()
     gcc_version = next(part for part in gcc_version.split() if part[0].isdigit())
     return cve_bin_tool_version, gcc_version
 

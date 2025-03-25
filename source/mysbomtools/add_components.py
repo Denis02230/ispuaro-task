@@ -6,7 +6,7 @@ NON_LIBRARY_COMPONENTS = {
     "gnattools": "application",
     "treelang": "application",
     "fixincludes": "application",
-    "gcj": "compiler",
+    "gcj": "application",
 }
 
 def extract_components(root: Path):

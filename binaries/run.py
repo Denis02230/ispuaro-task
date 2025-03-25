@@ -38,6 +38,13 @@ class AddVulns(Tool):
             "--targets", *self.targets.split()
         ], check=True)
 
+class PrintInfo(Tool):
+    def __init__(self, sbom_path):
+        self.sbom_path = sbom_path
+
+    def run(self):
+        subprocess.run(["python3", "-m", "mysbomtools_bin.print_info", self.sbom_path], check=True)
+
 def extract_tarball(tar_path, dest_dir):
     print(f"-- extracting {tar_path} into {dest_dir}")
     os.makedirs(dest_dir, exist_ok=True)
@@ -51,22 +58,21 @@ def find_libs(gcc_binaries_dir):
     return libs.decode().strip()
 
 def main():
-    required_files = ["gcc_binaries.tar.gz", "mysbomtools_bin/add_vulns.py"]
+    required_files = ["gcc_binaries.tar.gz", "mysbomtools_bin/add_vulns.py", "mysbomtools_bin/print_info.py"]
     for f in required_files:
         if not Path(f).is_file():
             raise FileNotFoundError(f"-- required file {f} not found in working directory.")
 
     extract_tarball("gcc_binaries.tar.gz", "gcc_binaries")
 
-    sbom_path = "gcc-bin-sbom.cdx.json"
-    syft_tool = Syft("gcc_binaries", sbom_path)
-    syft_tool.run()
+    tools = (
+        Syft("gcc_binaries", "gcc-bin-sbom.cdx.json"),
+        AddVulns("gcc-bin-sbom.cdx.json", "gcc-bin-sbom.cdx.json", find_libs("gcc_binaries")),
+        PrintInfo("gcc-bin-sbom.cdx.json"),
+    )
 
-    targets = find_libs("gcc_binaries")
-    print(f"-- found libs: {targets}")
-
-    add_vulns_tool = AddVulns(sbom_path, sbom_path, targets)
-    add_vulns_tool.run()
+    for tool in tools:
+        tool.run()
 
     print(f"-- script completed")
 

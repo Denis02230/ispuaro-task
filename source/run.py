@@ -66,6 +66,13 @@ class Merge(Tool):
         ], check=True)
         print(f"-- merge.py output written to {self.sbom_output}")
 
+class PrintInfo(Tool):
+    def __init__(self, sbom_path):
+        self.sbom_path = sbom_path
+
+    def run(self):
+        subprocess.run(["python3", "-m", "mysbomtools.print_info", self.sbom_path], check=True)
+
 def extract_tarball(tar_path, dest_dir):
     print(f"-- extracting {tar_path} into {dest_dir}")
     os.makedirs(dest_dir, exist_ok=True)
@@ -80,7 +87,7 @@ def get_versions():
     return cve_bin_tool_version, gcc_version
 
 def main():
-    required_files = ["gcc.tar.gz", "mysbomtools/add_components.py", "mysbomtools/merge.py"]
+    required_files = ["gcc.tar.gz", "mysbomtools/add_components.py", "mysbomtools/merge.py", "mysbomtools/print_info.py"]
     for f in required_files:
         if not Path(f).is_file():
             raise FileNotFoundError(f"-- required file {f} not found in working directory.")
@@ -99,7 +106,8 @@ def main():
             "gcc-sbom.cdx.json",
             cve_bin_tool_version,
             gcc_version,
-        )
+        ),
+        PrintInfo("gcc-sbom.cdx.json"),
     ]
 
     for tool in tools:

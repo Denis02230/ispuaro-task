@@ -8,6 +8,12 @@ class Tool:
     def run(self):
         raise NotImplementedError
 
+class Script(Tool):
+    def check_installed(self):
+        file = self.script_path
+        if not Path(file).is_file():
+            raise FileNotFoundError(f"required file {file} not found in working directory.")
+
 class Syft(Tool):
     def __init__(self, input_dir, output_file):
         self.input_dir = input_dir
@@ -24,11 +30,12 @@ class Syft(Tool):
             subprocess.run(["syft", self.input_dir, "-o", "cyclonedx-json"], stdout=f, check=True)
         print(f"-- Syft output written to {self.output_file}")
 
-class AddVulns(Tool):
+class AddVulns(Script):
     def __init__(self, sbom_input_path, sbom_output_path, targets):
         self.sbom_input_path = sbom_input_path
         self.sbom_output_path = sbom_output_path
         self.targets = targets
+        self.script_path = "mysbomtools_bin/add_vulns.py"
 
     def run(self):
         print(f"-- running add_vulns.py with targets: {self.targets}")
@@ -38,9 +45,10 @@ class AddVulns(Tool):
             "--targets", *self.targets.split()
         ], check=True)
 
-class PrintInfo(Tool):
+class PrintInfo(Script):
     def __init__(self, sbom_path):
         self.sbom_path = sbom_path
+        self.script_path = "mysbomtools_bin/print_info.py"
 
     def run(self):
         subprocess.run(["python3", "-m", "mysbomtools_bin.print_info", self.sbom_path], check=True)
@@ -58,12 +66,10 @@ def find_libs(gcc_binaries_dir):
     return libs.decode().strip()
 
 def main():
-    required_files = ["gcc_binaries.tar.gz", "mysbomtools_bin/add_vulns.py", "mysbomtools_bin/print_info.py"]
+    required_files = ["gcc_binaries.tar.gz"]
     for f in required_files:
         if not Path(f).is_file():
-            raise FileNotFoundError(f"-- required file {f} not found in working directory.")
-
-    extract_tarball("gcc_binaries.tar.gz", "gcc_binaries")
+            raise FileNotFoundError(f"required file {f} not found in working directory.")
 
     tools = (
         Syft("gcc_binaries", "gcc-bin-sbom.cdx.json"),
@@ -71,14 +77,13 @@ def main():
         PrintInfo("gcc-bin-sbom.cdx.json"),
     )
 
-    for tool in tools:
-        tool.run()
+    for tool in tools: tool.check_installed()
+
+    extract_tarball("gcc_binaries.tar.gz", "gcc_binaries")
+
+    for tool in tools: tool.run()
 
     print(f"-- script completed")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"-- caught exception:\n{e}")
-        sys.exit(1)
+    main()
